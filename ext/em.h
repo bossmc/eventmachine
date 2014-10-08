@@ -22,7 +22,16 @@ See the file COPYING for complete licensing information.
 
 #ifdef BUILD_FOR_RUBY
   #include <ruby.h>
-  #define EmSelect rb_thread_select
+
+  #ifdef HAVE_RB_THREAD_FD_SELECT
+    #define EmSelect rb_thread_fd_select
+  #else
+    #define EmSelect rb_thread_select
+  #endif
+
+  #ifdef HAVE_RB_THREAD_CALL_WITHOUT_GVL
+   #include <ruby/thread.h>
+  #endif
 
   #ifdef HAVE_RB_WAIT_FOR_SINGLE_FD
     #include <ruby/io.h>
@@ -88,6 +97,7 @@ class EventMachine_t
 		const unsigned long CreateTcpServer (const char *, int);
 		const unsigned long OpenDatagramSocket (const char *, int);
 		const unsigned long CreateUnixDomainServer (const char*);
+		const unsigned long AttachSD (int);
 		const unsigned long OpenKeyboard();
 		//const char *Popen (const char*, const char*);
 		const unsigned long Socketpair (char* const*);
